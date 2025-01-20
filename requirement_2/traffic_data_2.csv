@@ -1,0 +1,4 @@
+Vehicle,Speed,Location,Timestamp,BusLane,RedLight,ERPBalance,ERPCharge,SchoolZone,VehicleType
+SGX1234A,75,Orchard Road,2025-01-20 08:15:00,1,1,1.0,2.0,1,Car
+SGY5678B,55,ECP,2025-01-20 10:30:00,0,0,5.0,3.0,0,Bus
+SGZ9012C,95,Bukit Timah Road,2025-01-20 17:45:00,1,1,0.5,1.0,1,Motorcycle
