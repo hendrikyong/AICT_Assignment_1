@@ -3,12 +3,12 @@
 You are to model and predict traffic congestion using a Bayesian network based on real-world factors such as weather, time of day, and historical traffic data.
 
 Task Details:
-	Construct a Bayesian network with variables such as:
+•	Construct a Bayesian network with variables such as:
 •	Weather (W): Sunny, Rainy, Foggy.
 •	Time of Day (T): Morning, Afternoon, Evening.
 •	Historical Congestion Level (H): Low, Medium, High.
 •	Current Congestion Level (C): Low, Medium, High.
-	Use conditional probabilities to predict the likelihood of congestion for a given time and weather condition.
+•	Use conditional probabilities to predict the likelihood of congestion for a given time and weather condition.
 
 Deliverables:
 •	Bayesian network structure and implementation.
@@ -109,8 +109,7 @@ else:
         variables=["current_congestion_level"],
         evidence={"weather": weather_input, "time_of_day": time_of_day_input}
     )
-
-    #state names is like high med low 
+ 
     state_names = cpd_current_congestion_level.state_names["current_congestion_level"]
     probabilities = query_result.values 
 
