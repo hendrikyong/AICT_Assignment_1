@@ -59,20 +59,20 @@ graph = {
 ## 📌 **3️⃣ Traffic Prediction with Bayesian Networks**
 
 
-## ✅ How to Run the Code
-### Requirement 1 - Route Planning
-```python route_planning.py```
-1️⃣ Enter the starting location (e.g., WL)
-2️⃣ Enter the destination location (e.g., CA)
-3️⃣ View the shortest path, cost, and runtime for each algorithm
+## ✅ How to Run the Code  
+### Requirement 1 - Route Planning  
+```python route_planning.py```  
+1️⃣ Enter the starting location (e.g., WL)  
+2️⃣ Enter the destination location (e.g., CA)  
+3️⃣ View the shortest path, cost, and runtime for each algorithm  
 
-### Requirement 2 - Logical Inference for Traffic Rules
-
-
-### Requirement 3 - Traffic Prediction with Bayesian Networks
+### Requirement 2 - Logical Inference for Traffic Rules  
 
 
-## 🔗 Reference
-📌 AICT Assignment Document
-📌 networkx, pgmpy, matplotlib Documentation
-📌 Python Search & Optimization Algorithms
+### Requirement 3 - Traffic Prediction with Bayesian Networks  
+
+
+## 🔗 Reference  
+📌 AICT Assignment Document  
+📌 networkx, pgmpy, matplotlib Documentation  
+📌 Python Search & Optimization Algorithms  
