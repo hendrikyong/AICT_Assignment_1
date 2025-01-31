@@ -62,7 +62,8 @@ graph = {
 ## ✅ How to Run the Code  
 ### Requirement 1 - Route Planning  
 ```python
-python route_planning.py```  
+python route_planning.py
+```  
 1️⃣ Enter the starting location (e.g., WL)  
 2️⃣ Enter the destination location (e.g., CA)  
 3️⃣ View the shortest path, cost, and runtime for each algorithm  
