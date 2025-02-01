@@ -25,9 +25,9 @@ Our system models a **city map as a graph**, where:
 
 | Name         | Task & Contribution                         | Student ID  |
 |-------------|--------------------------------------------|-------------|
-| 🧑‍💻  Cheryl | Developed Logical Inference for Traffic Rules | SXXXXX |
-| 🧑‍💻  Hendrik | Built Bayesian Network for Traffic Prediction | S10241624J |
-| 🧑‍💻 ZhiHeng | Implemented Route Planning (Search Algorithms) | S10241579H |
+| 🧑‍💻  Cheryl | Logical Inference for Traffic Rules (Requirement 2.2) | SXXXXX |
+| 🧑‍💻  Hendrik | Traffic Prediction With Bayesian Network (Requirement 2.3)| S10241624J |
+| 🧑‍💻 ZhiHeng | Route Planning With Search Algorithms (Requirement 2.1) | S10241579H |
 
 
 ## 📌 **1️⃣ Route Planning with Search Algorithms**
