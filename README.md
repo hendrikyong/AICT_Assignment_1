@@ -13,7 +13,7 @@ This project is part of the **Artificial Intelligence Concepts & Techniques (AIC
 ## 🔹 Project Details
 **📌 Assignment Name:** AICT Assignment 2024/25  
 **📌 Real-World Problem:** Intelligent Transportation System  
-**📌 Frameworks & Libraries:** Python, `networkx`, `pgmpy`, `matplotlib`, `pandas`  
+**📌 Frameworks & Libraries:** Python, `networkx`, `pgmpy`, `matplotlib`, `pandas`, `itertools`, `csv`, `datetime`
 **📌 Team Size:** 3 members  
 
 Our system models a **city map as a graph**, where:
@@ -25,7 +25,7 @@ Our system models a **city map as a graph**, where:
 
 | Name         | Task & Contribution                         | Student ID  |
 |-------------|--------------------------------------------|-------------|
-| 🧑‍💻  Cheryl | Logical Inference for Traffic Rules (Requirement 2.2) | SXXXXX |
+| 🧑‍💻  Cheryl | Logical Inference for Traffic Rules (Requirement 2.2) | S10258146H |
 | 🧑‍💻  Hendrik | Traffic Prediction With Bayesian Network (Requirement 2.3)| S10241624J |
 | 🧑‍💻 ZhiHeng | Route Planning With Search Algorithms (Requirement 2.1) | S10241579H |
 
@@ -54,7 +54,7 @@ graph = {
 
 
 ## 📌 **2️⃣ Logical Inference for Traffic Rules**
-
+This program takes has traffic rules built into it, taking in a file "vehicle_data.csv". From there it uses propositional logic and resolution-based inference to deduce violations and inconsistencies in the data. using logic.py in the process.
 
 ## 📌 **3️⃣ Traffic Prediction with Bayesian Networks**
 
@@ -69,7 +69,9 @@ python route_planning.py
 3️⃣ View the shortest path, cost, and runtime for each algorithm  
 
 ### Requirement 2 - Logical Inference for Traffic Rules  
-
+```python
+python requirement2.py
+```
 
 ### Requirement 3 - Traffic Prediction with Bayesian Networks  
 
