@@ -28,41 +28,63 @@ def get_traffic_rules():
         "Tuas Expressway": [
             ("ExpresswaySpeedingViolation",
              "On Tuas Expressway, if speed exceeds 90 km/h then violation",
-             "(~expressway OR speed_within_expressway OR ExpresswaySpeedingViolation)")
+             "(~expressway OR speed_within_expressway OR ExpresswaySpeedingViolation)"),
+            ("ERPViolation",
+             "On Tuas Expressway, if ERP is active and ERP balance is below required charge then violation",
+             "(~erp_active OR ~erp_charge_violation OR ERPViolation)")
         ],
         "Orchard Road": [
-             ("BusLaneViolation",
-             "On City Link, if the vehicle is not a bus and the current time is within enforced bus lane hours then violation",
-             "(is_bus OR ~in_bus_lane_hours OR BusLaneViolation)")
+            ("BusLaneViolation",
+             "On Orchard Road, if the vehicle is not a bus and the current time is within enforced bus lane hours then violation",
+             "(is_bus OR ~in_bus_lane_hours OR BusLaneViolation)"),
+            ("IllegalParkingViolation",
+             "On Orchard Road, if the vehicle is parked for more than 5 minutes then violation",
+             "(~illegal_parking OR IllegalParkingViolation)")
         ],
         "CBD": [
             ("RedLightViolation",
              "In the CBD, if the traffic light is red and the vehicle is moving then violation",
-             "(~red OR ~speed_above_5 OR RedLightViolation)")
+             "(~red OR ~speed_above_5 OR RedLightViolation)"),
+            ("UnauthorizedUTurnViolation",
+             "In the CBD, if the vehicle makes a U-turn then violation",
+             "(~made_uturn OR UnauthorizedUTurnViolation)")
         ],
         "School Street": [
             ("SchoolZoneSpeedingViolation",
              "On School Street, if in a school zone during enforcement hours and speed > 40 km/h then violation",
-             "(~school_zone OR ~in_school_hours OR ~speed_above_40 OR SchoolZoneSpeedingViolation)")
+             "(~school_zone OR ~in_school_hours OR ~speed_above_40 OR SchoolZoneSpeedingViolation)"),
+            ("PedestrianSafetyViolation",
+             "On School Street, if pedestrians are detected and speed exceeds 30 km/h then violation",
+             "(~pedestrians_present OR ~speed_above_30 OR PedestrianSafetyViolation)")
         ],
         "City Link": [
             ("ResidentialSpeedingViolation",
-             "On Orchard Road, if speed exceeds 50 km/h then violation",
+             "On City Link, if speed exceeds 50 km/h then violation",
              "(~residential OR speed_within_residential OR ResidentialSpeedingViolation)")
         ],
+        "Jurong East": [
+            ("HeavyVehicleViolation",
+             "On Jurong East, if the vehicle is a heavy vehicle and operating during restricted hours then violation",
+             "(~is_heavy_vehicle OR ~restricted_hours OR HeavyVehicleViolation)")
+        ],
+        "Changi Airport": [
+            ("UnauthorizedParkingViolation",
+             "At Changi Airport, if vehicle is parked outside designated parking zones then violation",
+             "(~illegal_parking OR UnauthorizedParkingViolation)")
+        ],
         "ALL": [
-            ("IllegalParkingViolation",
-             "If the vehicle has been parked for more than 5 minutes then violation",
-             "(~illegal_parking OR IllegalParkingViolation)"),
             ("SpeedingViolation",
              "If the vehicle's speed exceeds 60 km/h then violation",
              "(~speed_above_60 OR SpeedingViolation)"),
+            ("IllegalParkingViolation",
+             "If the vehicle has been parked for more than 5 minutes then violation",
+             "(~illegal_parking OR IllegalParkingViolation)"),
             ("ERPViolation",
              "If ERP is active and ERP balance is below the required charge then violation",
              "(~erp_active OR ~erp_charge_violation OR ERPViolation)"),
-            ("UnauthorizedUTurnViolation",
-             "If the vehicle makes a U-turn then violation",
-             "(~made_uturn OR UnauthorizedUTurnViolation)")
+            ("UnrealisticSpeedViolation",
+             "If vehicle speed exceeds 150 km/h in non-expressway areas then violation",
+             "(~residential OR ~speed_above_150 OR UnrealisticSpeedViolation)")
         ]
     }
     return rules_by_location
