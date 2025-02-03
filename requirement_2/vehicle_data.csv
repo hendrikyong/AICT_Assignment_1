@@ -1,10 +1,22 @@
 vehicle_id,speed,traffic_light,is_bus,parked_duration,erp_active,erp_balance,charge_amount,school_zone,location,zone_type,timestamp,made_uturn
 SG1234A,95,Red,True,0,True,3.50,5.00,False,Tuas Expressway,Expressway,15:00,False
 SG5678B,55,Green,False,0,True,10.00,5.00,False,Orchard Road,Residential,10:00,False
-SG9012C,350,Green,False,0,True,3.00,5.00,True,School Street,Residential,12:15,False
+SG9012C,120,Green,False,0,True,3.00,5.00,True,School Street,Residential,12:15,False
 SG3456D,10,Green,False,10,False,0,0,False,City Link,Residential,10:45,False
 SG1234A,50,Red,False,0,True,3.50,5.00,False,CBD,Residential,08:05,False
 SG0000X,-5,Green,False,0,False,0,0,False,Jurong East,Residential,17:30,False
 SG7777E,160,Green,False,0,False,0,0,True,School Street,Residential,08:30,False
-SGTEST,100,Red,False, 10, True, 10,5,False,Orchard Road,Residential,12:15,True
-SGTEST,100,Red,False, 10, True, 10,5,False,Tuas Expressway,Residential,12:15,True
+SGTEST,100,Red,False,10,True,10,5,False,Orchard Road,Residential,12:15,True
+SG9999F,85,Green,False,0,True,1.00,5.00,False,Tuas Expressway,Expressway,16:00,False
+SG1111G,40,Green,True,0,False,5.00,5.00,False,Jurong East,Residential,07:15,False
+SG2222H,200,Green,False,0,True,0.50,5.00,False,Changi Airport,Residential,13:45,False
+SG3333I,75,Red,False,0,True,2.00,5.00,False,City Link,Residential,11:30,False
+SG4444J,55,Green,False,0,True,8.00,5.00,False,Orchard Road,Residential,09:00,False
+SG5555K,5,Red,False,6,False,0,0,False,Jurong East,Residential,17:45,False
+SG6666L,110,Green,False,0,True,3.00,5.00,False,School Street,Residential,07:00,False
+SG7777M,130,Green,False,0,True,2.00,5.00,False,Tuas Expressway,Expressway,18:30,False
+SG8888N,85,Green,False,0,False,0,0,False,Changi Airport,Residential,19:00,False
+SG9999O,45,Red,False,0,False,0,0,False,CBD,Residential,08:15,False
+SG5555P,20,Green,False,7,False,0,0,False,Orchard Road,Residential,15:00,False
+SG6666Q,155,Green,False,0,False,0,0,False,Jurong East,Residential,22:00,False
+SG7777R,0,Red,False,0,True,10.00,5.00,False,CBD,Residential,10:30,True
