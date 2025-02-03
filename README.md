@@ -76,7 +76,12 @@ python requirement2.py
 ### Requirement 3 - Traffic Prediction with Bayesian Networks  
 
 
+### Advanced done by Cheryl
+```python
+python advanced.py
+```
+
 ## 🔗 Reference  
 📌 AICT Assignment Document  
 📌 networkx, pgmpy, matplotlib Documentation  
-📌 Python Search & Optimization Algorithms  
+📌 Python Search & Optimization Algorithms
