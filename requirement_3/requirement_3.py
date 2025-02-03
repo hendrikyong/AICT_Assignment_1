@@ -19,6 +19,7 @@ W, RA, T, D influences H (because if theres rainy weather, road accidents, morni
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
+import itertools
 
 #define bayesian model structure 
 #this model is constructed with a list of directed edges that define the relationships between different variables. 
@@ -38,7 +39,7 @@ cpd_T = TabularCPD(variable='T', variable_card=3,
                    values=[[1/3], [1/3], [1/3]])  # P(Morning), P(Afternoon), P(Evening)
 
 cpd_D = TabularCPD(variable='D', variable_card=2,
-                   values=[[0.5], [0.5]])  # P(Weekday), P(Weekend)
+                   values=[[5/7], [2/7]])  # P(Weekday), P(Weekend)
 
 cpd_W = TabularCPD(variable='W', variable_card=3, values=[[0.6], [0.3], [0.1]]) # Sunny, Rainy, Foggy
 
@@ -79,6 +80,19 @@ cpd_H = TabularCPD(variable='H', variable_card=3,  # Low, Medium, High
                    evidence=['W', 'RA', 'T', 'D'], evidence_card=[3, 3, 3, 2])
 
 
+# Define the possible states for each variable
+W = ['Sunny', 'Rainy', 'Foggy']
+RA = ['None', 'Minor', 'Major']
+T = ['Morning', 'Afternoon', 'Evening']
+D = ['Weekday', 'Weekend']
+
+# Generate all combinations of the variables
+possible_worlds = itertools.product(W, RA, T, D)
+
+# Print each combination with a number
+for index, world in enumerate(possible_worlds, start=1):
+    print(f"{index}: {', '.join(world)}")
+
 # Add CPDs to the model
 model.add_cpds(cpd_T, cpd_D, cpd_W, cpd_RC, cpd_RA, cpd_H)
 
@@ -96,3 +110,10 @@ congestion_mapping = {0: "Low", 1: "Medium", 2: "High"}
 for index, prob in enumerate(result.values):
     print(f"Congestion Level: {congestion_mapping[index]}, Probability: {prob:.2%}")
 
+1: Sunny, None, Morning, Weekday 0.2
+7: Sunny, Minor, Morning, Weekday 0.3
+13: Sunny, Major, Morning, Weekday 0.5
+
+2: Sunny, None, Morning, Weekend
+8: Sunny, Minor, Morning, Weekend
+14: Sunny, Major, Morning, Weekend
