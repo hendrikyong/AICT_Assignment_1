@@ -1,118 +1,98 @@
 '''
-3.	Traffic Prediction with Bayesian Networks 
-You are to model and predict traffic congestion using a Bayesian network based on real-world factors such as weather, time of day, and historical traffic data.
-
-Task Details:
-•	Construct a Bayesian network with variables such as:
-•	Weather (W): Sunny, Rainy, Foggy.
-•	Time of Day (T): Morning, Afternoon, Evening.
-•	Historical Congestion Level (H): Low, Medium, High.
-•	Current Congestion Level (C): Low, Medium, High.
-•	Use conditional probabilities to predict the likelihood of congestion for a given time and weather condition.
-
 Deliverables:
 •	Bayesian network structure and implementation.
 •	Inference results for different scenarios.
 •	Analysis and discussion of the model’s accuracy and limitations.
-'''
 
-'''
-Vehicle Count (VC): The number of vehicles passing a specific point per unit time.
-Average Vehicle Speed (AS): Average speed of vehicles in a segment of the road.
 Road Surface Conditions (RC): Dry, wet
 Weather (W): Sunny, Rainy, Foggy
 Time of Day (T): Morning, Afternoon, Evening
 Day of the Week (D): Weekday, Weekend
-Road Incidents (RI): None, Minor, Major
+Road Accidents (RA): None, Minor, Major
 Historical Congestion Level (H): Low, Medium, High
+
+W influences RC (because if rainy weather then road surface conditions are wet)
+W and RC influences RA (because if theres rainy weather and wet road surface confitions, then road accidents are more likely to happen)
+W, RA, T, D influences H (because if theres rainy weather, road accidents, morning time, weekday, then historical congestion level is more likely to be high)
 '''
 
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
 
-#bayesian model
+#define bayesian model structure 
+#this model is constructed with a list of directed edges that define the relationships between different variables. 
 model = BayesianNetwork([
-    ("weather", "historical_congestion_level"),
-    ("time_of_day", "historical_congestion_level"),
-    ("historical_congestion_level", "current_congestion_level")
+    ('W', 'RC'),   #for this example, weather influences road conditions
+    ('W', 'RA'),   #weather and road conditions influence road accidents
+    ('RC', 'RA'),  
+    ('W', 'H'),    #weather, road accidents, time of day, and day of the week influence historical congestion level
+    ('RA', 'H'),   
+    ('T', 'H'),    
+    ('D', 'H')     
 ])
 
 
-#define cpd
-#cpd for weather
-cpd_weather = TabularCPD(variable="weather", 
-                         variable_card=3, 
-                         values=[[0.5], [0.3], [0.2]],
-                         state_names={"weather": ["sunny", "rainy", "foggy"]})
+#conditional probability distributions (CPDs) for each node
+cpd_T = TabularCPD(variable='T', variable_card=3,
+                   values=[[1/3], [1/3], [1/3]])  # P(Morning), P(Afternoon), P(Evening)
 
-#cpd for time_of_day
-cpd_time_of_day = TabularCPD(variable="time_of_day", 
-                              variable_card=3, 
-                              values=[[1/3], [1/3], [1/3]],
-                              state_names={"time_of_day": ["morning", "afternoon", "evening"]})
+cpd_D = TabularCPD(variable='D', variable_card=2,
+                   values=[[0.5], [0.5]])  # P(Weekday), P(Weekend)
 
-#cpd for historical_congestion_level
-cpd_historical_congestion_level = TabularCPD(
-    variable="historical_congestion_level",
-    variable_card=3,
-    values=[
-        [0.6, 0.8, 0.7, 0.4, 0.3, 0.35, 0.5, 0.6, 0.55],  # High
-        [0.3, 0.15, 0.2, 0.4, 0.5, 0.45, 0.4, 0.3, 0.35],  # Medium
-        [0.1, 0.05, 0.1, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1],    # Low
-    ],
-    evidence=["weather", "time_of_day"],
-    evidence_card=[3, 3],
-    state_names={
-        "historical_congestion_level": ["high", "medium", "low"],
-        "weather": ["sunny", "rainy", "foggy"],
-        "time_of_day": ["morning", "afternoon", "evening"]
-    }
-)
+cpd_W = TabularCPD(variable='W', variable_card=3, values=[[0.6], [0.3], [0.1]]) # Sunny, Rainy, Foggy
 
-#cpd for current_congestion_level
-cpd_current_congestion_level = TabularCPD(
-    variable="current_congestion_level",
-    variable_card=3,
-    values=[
-        [0.9, 0.6, 0.3],  
-        [0.1, 0.3, 0.4],  
-        [0.0, 0.1, 0.3],  
-    ],
-    evidence=["historical_congestion_level"],
-    evidence_card=[3],
-    state_names={
-        "current_congestion_level": ["high", "medium", "low"],
-        "historical_congestion_level": ["high", "medium", "low"]
-    }
-)
+cpd_RC = TabularCPD(variable='RC', variable_card=2, 
+                    values=[[0.8, 0.2, 0.5],  # Dry: P(Dry | Sunny)... etc
+                            [0.2, 0.8, 0.5]],  # Wet: P(Wet | Sunny)... etc
+                    evidence=['W'], evidence_card=[3])
 
-#add CPDs to the model
-model.add_cpds(cpd_weather, cpd_time_of_day, cpd_historical_congestion_level, cpd_current_congestion_level)
+cpd_RA = TabularCPD(variable='RA', variable_card=3, 
+                    values=[[0.9, 0.7, 1/3, 0.1, 0.1, 0.1],  # P(None | Sunny, Dry), P(None | Sunny, Wet), P(None | Rainy, Dry), P(None | Rainy, Wet), P(None | Foggy, Dry), P(None | Foggy, Wet)
+                            [0.08, 0.2, 1/3, 0.4, 0.3, 0.2],  # P(Minor | Sunny, Dry), P(Minor | Sunny, Wet),  P(Minor | Rainy, Dry), P(Minor | Rainy, Wet), P(Minor | Foggy, Dry), P(Minor | Foggy, Wet)
+                            [0.02, 0.1, 1/3, 0.5, 0.6, 0.7]], # P(Major | Sunny, Dry), P(Major | Sunny, Wet), P(Major | Rainy, Dry), P(Major | Rainy, Wet), P(Major | Foggy, Dry), P(Major | Foggy, Wet)
+                    evidence=['W', 'RC'], evidence_card=[3, 2])
 
-#model check
-assert model.check_model()
+#not possible to have P(None OR Minor OR Major | Rainy, Dry) because it is not possible to have rainy weather and dry road conditions at the same time 
 
-#inf
+cpd_H = TabularCPD(variable='H', variable_card=3,  # Low, Medium, High
+                   values=[
+                       # for low
+                       [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
+                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
+                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
+                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
+                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2],
+                       # for medium
+                       [0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
+                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
+                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
+                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
+                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5],
+                       # for high
+                       [0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
+                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
+                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
+                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
+                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3]
+                   ],
+                   evidence=['W', 'RA', 'T', 'D'], evidence_card=[3, 3, 3, 2])
+
+
+# Add CPDs to the model
+model.add_cpds(cpd_T, cpd_D, cpd_W, cpd_RC, cpd_RA, cpd_H)
+
+# Validate the model
+model.check_model()
+print(model)
+
 inference = VariableElimination(model)
+# T = Time of day 0 = Morning, 1 = Afternoon, 2 = Evening
+# W = Weather 0 = Sunny, 1 = Rainy, 2 = Foggy
 
-#get user input
-weather_input = input("Enter the weather (sunny, rainy, foggy): ").strip().lower()
-time_of_day_input = input("Enter the time of day (morning, afternoon, evening): ").strip().lower()
+result = inference.query(variables=['H'], evidence={'T': 1, 'W': 0})
+congestion_mapping = {0: "Low", 1: "Medium", 2: "High"}
 
-#validate
-if weather_input not in ["sunny", "rainy", "foggy"] or time_of_day_input not in ["morning", "afternoon", "evening"]:
-    print("Invalid input. Please enter valid weather and time of day.")
-else:
-    #else use query to inf the current congestion level
-    query_result = inference.query(
-        variables=["current_congestion_level"],
-        evidence={"weather": weather_input, "time_of_day": time_of_day_input}
-    )
- 
-    state_names = cpd_current_congestion_level.state_names["current_congestion_level"]
-    probabilities = query_result.values 
+for index, prob in enumerate(result.values):
+    print(f"Congestion Level: {congestion_mapping[index]}, Probability: {prob:.2%}")
 
-    print("\nPredicted probabilities for Current Congestion Level:")
-    for level_name, prob in zip(state_names, probabilities):
-        print(f"  {level_name}: {prob:.4f}")
