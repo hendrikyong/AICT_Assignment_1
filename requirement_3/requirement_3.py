@@ -19,7 +19,6 @@ W, RA, T, D influences H (because if theres rainy weather, road accidents, morni
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
-import itertools
 
 #define bayesian model structure 
 #this model is constructed with a list of directed edges that define the relationships between different variables. 
@@ -33,87 +32,124 @@ model = BayesianNetwork([
     ('D', 'H')     
 ])
 
+cpd_W = TabularCPD(variable='W', variable_card=3,
+                   values=[[0.5], [0.35], [0.15]],  # Sunny, Rainy, Foggy
+                   state_names={'W': ['Sunny', 'Rainy', 'Foggy']})
 
-#conditional probability distributions (CPDs) for each node
+cpd_RC = TabularCPD(variable='RC', variable_card=2,
+                     values=[[0.95, 0.3, 0.4],  # Good
+                             [0.05, 0.7, 0.6]],  # Bad
+                     evidence=['W'], evidence_card=[3],
+                     state_names={'RC': ['Good', 'Bad'], 'W': ['Sunny', 'Rainy', 'Foggy']})
+
+cpd_RA = TabularCPD(variable='RA', variable_card=2,
+                     values=[[0.98, 0.7, 0.8, 0.5, 0.7, 0.4],  # No Accident
+                             [0.02, 0.3, 0.2, 0.5, 0.3, 0.6]],  # Accident
+                     evidence=['W', 'RC'], evidence_card=[3, 2],
+                     state_names={'RA': ['No Accident', 'Accident'],
+                                  'W': ['Sunny', 'Rainy', 'Foggy'],
+                                  'RC': ['Good', 'Bad']})
 cpd_T = TabularCPD(variable='T', variable_card=3,
-                   values=[[1/3], [1/3], [1/3]])  # P(Morning), P(Afternoon), P(Evening)
+                   values=[[0.3], [0.4], [0.3]],  # Morning, Afternoon, Evening
+                   state_names={'T': ['Morning', 'Afternoon', 'Evening']})
 
 cpd_D = TabularCPD(variable='D', variable_card=2,
-                   values=[[5/7], [2/7]])  # P(Weekday), P(Weekend)
+                   values=[[5/7], [2/7]],  # Weekday, Weekend
+                   state_names={'D': ['Weekday', 'Weekend']})
 
-cpd_W = TabularCPD(variable='W', variable_card=3, values=[[0.6], [0.3], [0.1]]) # Sunny, Rainy, Foggy
+import numpy as np
 
-cpd_RC = TabularCPD(variable='RC', variable_card=2, 
-                    values=[[0.8, 0.2, 0.5],  # Dry: P(Dry | Sunny)... etc
-                            [0.2, 0.8, 0.5]],  # Wet: P(Wet | Sunny)... etc
-                    evidence=['W'], evidence_card=[3])
+# Define states
+weather_states = ["Sunny", "Rainy", "Foggy"]
+accident_states = ["No Accident", "Accident"]
+time_states = ["Morning", "Afternoon", "Evening"]
+day_states = ["Weekday", "Weekend"]
 
-cpd_RA = TabularCPD(variable='RA', variable_card=3, 
-                    values=[[0.9, 0.7, 1/3, 0.1, 0.1, 0.1],  # P(None | Sunny, Dry), P(None | Sunny, Wet), P(None | Rainy, Dry), P(None | Rainy, Wet), P(None | Foggy, Dry), P(None | Foggy, Wet)
-                            [0.08, 0.2, 1/3, 0.4, 0.3, 0.2],  # P(Minor | Sunny, Dry), P(Minor | Sunny, Wet),  P(Minor | Rainy, Dry), P(Minor | Rainy, Wet), P(Minor | Foggy, Dry), P(Minor | Foggy, Wet)
-                            [0.02, 0.1, 1/3, 0.5, 0.6, 0.7]], # P(Major | Sunny, Dry), P(Major | Sunny, Wet), P(Major | Rainy, Dry), P(Major | Rainy, Wet), P(Major | Foggy, Dry), P(Major | Foggy, Wet)
-                    evidence=['W', 'RC'], evidence_card=[3, 2])
+# Probabilities storage
+prob_low = []
+prob_medium = []
+prob_high = []
 
-#not possible to have P(None OR Minor OR Major | Rainy, Dry) because it is not possible to have rainy weather and dry road conditions at the same time 
+# Assign probabilities based on logical rules
+for w in weather_states:
+    for ra in accident_states:
+        for t in time_states:
+            for d in day_states:
+                # Base probabilities
+                if w == "Sunny":
+                    low = 0.8
+                    medium = 0.15
+                    high = 0.05
+                elif w == "Rainy":
+                    low = 0.6
+                    medium = 0.3
+                    high = 0.1
+                else:  # Foggy
+                    low = 0.5
+                    medium = 0.35
+                    high = 0.15
 
-cpd_H = TabularCPD(variable='H', variable_card=3,  # Low, Medium, High
-                   values=[
-                       # for low
-                       [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
-                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
-                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
-                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01, 0.01, 0.01, 0.01,
-                        0.7, 0.6, 0.5, 0.4, 0.3, 0.2],
-                       # for medium
-                       [0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
-                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
-                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
-                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5, 0.6, 0.6, 0.5, 0.4, 0.3, 0.2,
-                        0.2, 0.3, 0.4, 0.4, 0.5, 0.5],
-                       # for high
-                       [0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
-                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
-                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
-                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3, 0.3, 0.35, 0.49, 0.59, 0.69, 0.79,
-                        0.1, 0.1, 0.1, 0.2, 0.2, 0.3]
-                   ],
-                   evidence=['W', 'RA', 'T', 'D'], evidence_card=[3, 3, 3, 2])
+                # Accidents increase congestion
+                if ra == "Accident":
+                    low -= 0.3
+                    medium += 0.2
+                    high += 0.1
 
+                # Time of day effects
+                if t == "Morning":
+                    low -= 0.2
+                    medium += 0.1
+                    high += 0.1
+                elif t == "Evening":
+                    low -= 0.1
+                    medium += 0.05
+                    high += 0.05
 
-# Define the possible states for each variable
-W = ['Sunny', 'Rainy', 'Foggy']
-RA = ['None', 'Minor', 'Major']
-T = ['Morning', 'Afternoon', 'Evening']
-D = ['Weekday', 'Weekend']
+                # Weekdays are busier
+                if d == "Weekday":
+                    low -= 0.1
+                    medium += 0.05
+                    high += 0.05
 
-# Generate all combinations of the variables
-possible_worlds = itertools.product(W, RA, T, D)
+                # Ensure probabilities sum to 1
+                total = low + medium + high
+                low /= total
+                medium /= total
+                high /= total
 
-# Print each combination with a number
-for index, world in enumerate(possible_worlds, start=1):
-    print(f"{index}: {', '.join(world)}")
+                # Store results
+                prob_low.append(low)
+                prob_medium.append(medium)
+                prob_high.append(high)
+
+# Convert to NumPy arrays
+prob_values = np.array([prob_low, prob_medium, prob_high])
+prob_values.shape
+
+cpd_H = TabularCPD(
+    variable='H', variable_card=3,
+    values=[
+        prob_values[0], prob_values[1], prob_values[2]
+    ],
+    evidence=['W', 'RA', 'T', 'D'],
+    evidence_card=[3, 2, 3, 2],
+    state_names={'H': ['Low', 'Medium', 'High'],
+                 'W': ['Sunny', 'Rainy', 'Foggy'],
+                 'RA': ['No Accident', 'Accident'],
+                 'T': ['Morning', 'Afternoon', 'Evening'],
+                 'D': ['Weekday', 'Weekend']}
+)
 
 # Add CPDs to the model
-model.add_cpds(cpd_T, cpd_D, cpd_W, cpd_RC, cpd_RA, cpd_H)
+model.add_cpds(cpd_W, cpd_RC, cpd_RA, cpd_T, cpd_D, cpd_H)
 
-# Validate the model
-model.check_model()
+# Check if model is valid
+assert model.check_model(), "The model is not valid!"
 print(model)
 
 inference = VariableElimination(model)
-# T = Time of day 0 = Morning, 1 = Afternoon, 2 = Evening
-# W = Weather 0 = Sunny, 1 = Rainy, 2 = Foggy
-
-result = inference.query(variables=['H'], evidence={'T': 1, 'W': 0})
+result = inference.query(variables=['H'], evidence={'T': 'Morning', 'W': "Rainy"})
 congestion_mapping = {0: "Low", 1: "Medium", 2: "High"}
 
 for index, prob in enumerate(result.values):
     print(f"Congestion Level: {congestion_mapping[index]}, Probability: {prob:.2%}")
-
-1: Sunny, None, Morning, Weekday 0.2
-7: Sunny, Minor, Morning, Weekday 0.3
-13: Sunny, Major, Morning, Weekday 0.5
-
-2: Sunny, None, Morning, Weekend
-8: Sunny, Minor, Morning, Weekend
-14: Sunny, Major, Morning, Weekend
