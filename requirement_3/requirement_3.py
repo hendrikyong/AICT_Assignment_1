@@ -68,7 +68,7 @@ day_states = ["Weekday", "Weekend"]
 # Probabilities storage
 prob_low, prob_medium, prob_high = [], [], []
 
-# Assign probabilities based on logical rules
+# Adjust congestion probabilities for specific weekend afternoon conditions
 for w in weather_states:
     for ra in accident_states:
         for t in time_states:
@@ -79,37 +79,36 @@ for w in weather_states:
                 elif w == "Rainy":
                     low, medium, high = 0.4, 0.4, 0.2
                 else:  # Foggy
-                    low, medium, high = 0.25, 0.50, 0.25  # Shifted toward Medium
+                    low, medium, high = 0.25, 0.50, 0.25 
 
-                # Accidents increase congestion
                 if ra == "Accident":
-                    low *= 0.2  # Reduce low by 80%
-                    medium *= 1.3  # Slight boost to medium
-                    high *= 2.5  # Reduce extreme high congestion impact
+                    low *= 0.2  
+                    medium *= 1.3  
+                    high *= 2.5  
 
-                # Time of day effects
                 if t == "Morning":
                     low *= 0.5
                     medium *= 1.2
                     high *= 2.0
                 elif t == "Evening":
                     low *= 0.6
-                    medium *= 1.2  # More Medium congestion
-                    high *= 1.5  # Reduce High congestion impact
+                    medium *= 1.2 
+                    high *= 1.5  
 
-                # Weekdays are busier
                 if d == "Weekday":
                     low *= 0.75
                     medium *= 1.1
                     high *= 1.4
+                elif d == "Weekend" and t == "Afternoon" and ra == "No Accident" and w == "Sunny":
+                    low *= 0.5  
+                    medium *= 1.5  
+                    high *= 2.0  
 
-                # Normalize probabilities to sum to 1
                 total = low + medium + high
                 low /= total
                 medium /= total
                 high /= total
 
-                # Store results
                 prob_low.append(low)
                 prob_medium.append(medium)
                 prob_high.append(high)
@@ -138,17 +137,16 @@ assert model.check_model(), "The model is not valid!"
 inference = VariableElimination(model)
 congestion_mapping = {0: "Low", 1: "Medium", 2: "High"}
 
-# Define multiple test cases with different amounts of evidence
+
 test_cases = [
-    {"T": "Morning", "W": "Rainy"},  # Only time and weather
+    {"T": "Morning", "W": "Rainy"},  
     {"T": "Afternoon", "W": "Sunny"},  
-    {"T": "Evening", "W": "Foggy"},  # Only time and weather
-    {"T": "Morning", "W": "Rainy", "RA": "Accident", "D": "Weekday"},  # Full evidence
-    {"T": "Afternoon", "W": "Sunny", "RA": "Accident", "D": "Weekend"},
-    {"T": "Evening", "W": "Sunny", "RA": "No Accident", "D": "Weekend"},
+    {"T": "Evening", "W": "Foggy"},  
+    {"T": "Morning", "W": "Rainy", "RA": "Accident", "D": "Weekday"},  
+    {"T": "Afternoon", "W": "Sunny", "RA": "No Accident", "D": "Weekday"},
+    {"T": "Afternoon", "W": "Sunny", "RA": "No Accident", "D": "Weekend"},
 ]
 
-# Run all test cases
 for i, evidence in enumerate(test_cases, 1):
     result = inference.query(variables=['H'], evidence=evidence)
     
