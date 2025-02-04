@@ -66,9 +66,7 @@ time_states = ["Morning", "Afternoon", "Evening"]
 day_states = ["Weekday", "Weekend"]
 
 # Probabilities storage
-prob_low = []
-prob_medium = []
-prob_high = []
+prob_low, prob_medium, prob_high = [], [], []
 
 # Assign probabilities based on logical rules
 for w in weather_states:
@@ -77,41 +75,35 @@ for w in weather_states:
             for d in day_states:
                 # Base probabilities
                 if w == "Sunny":
-                    low = 0.8
-                    medium = 0.15
-                    high = 0.05
+                    low, medium, high = 0.9, 0.08, 0.02
                 elif w == "Rainy":
-                    low = 0.6
-                    medium = 0.3
-                    high = 0.1
+                    low, medium, high = 0.4, 0.4, 0.2
                 else:  # Foggy
-                    low = 0.5
-                    medium = 0.35
-                    high = 0.15
+                    low, medium, high = 0.25, 0.50, 0.25  # Shifted toward Medium
 
                 # Accidents increase congestion
                 if ra == "Accident":
-                    low -= 0.3
-                    medium += 0.2
-                    high += 0.1
+                    low *= 0.2  # Reduce low by 80%
+                    medium *= 1.3  # Slight boost to medium
+                    high *= 2.5  # Reduce extreme high congestion impact
 
                 # Time of day effects
                 if t == "Morning":
-                    low -= 0.2
-                    medium += 0.1
-                    high += 0.1
+                    low *= 0.5
+                    medium *= 1.2
+                    high *= 2.0
                 elif t == "Evening":
-                    low -= 0.1
-                    medium += 0.05
-                    high += 0.05
+                    low *= 0.6
+                    medium *= 1.2  # More Medium congestion
+                    high *= 1.5  # Reduce High congestion impact
 
                 # Weekdays are busier
                 if d == "Weekday":
-                    low -= 0.1
-                    medium += 0.05
-                    high += 0.05
+                    low *= 0.75
+                    medium *= 1.1
+                    high *= 1.4
 
-                # Ensure probabilities sum to 1
+                # Normalize probabilities to sum to 1
                 total = low + medium + high
                 low /= total
                 medium /= total
@@ -124,13 +116,10 @@ for w in weather_states:
 
 # Convert to NumPy arrays
 prob_values = np.array([prob_low, prob_medium, prob_high])
-prob_values.shape
 
 cpd_H = TabularCPD(
     variable='H', variable_card=3,
-    values=[
-        prob_values[0], prob_values[1], prob_values[2]
-    ],
+    values=prob_values,
     evidence=['W', 'RA', 'T', 'D'],
     evidence_card=[3, 2, 3, 2],
     state_names={'H': ['Low', 'Medium', 'High'],
@@ -145,11 +134,24 @@ model.add_cpds(cpd_W, cpd_RC, cpd_RA, cpd_T, cpd_D, cpd_H)
 
 # Check if model is valid
 assert model.check_model(), "The model is not valid!"
-print(model)
 
 inference = VariableElimination(model)
-result = inference.query(variables=['H'], evidence={'T': 'Morning', 'W': "Rainy"})
 congestion_mapping = {0: "Low", 1: "Medium", 2: "High"}
 
-for index, prob in enumerate(result.values):
-    print(f"Congestion Level: {congestion_mapping[index]}, Probability: {prob:.2%}")
+# Define multiple test cases with different amounts of evidence
+test_cases = [
+    {"T": "Morning", "W": "Rainy"},  # Only time and weather
+    {"T": "Afternoon", "W": "Sunny"},  
+    {"T": "Evening", "W": "Foggy"},  # Only time and weather
+    {"T": "Morning", "W": "Rainy", "RA": "Accident", "D": "Weekday"},  # Full evidence
+    {"T": "Afternoon", "W": "Sunny", "RA": "Accident", "D": "Weekend"},
+    {"T": "Evening", "W": "Sunny", "RA": "No Accident", "D": "Weekend"},
+]
+
+# Run all test cases
+for i, evidence in enumerate(test_cases, 1):
+    result = inference.query(variables=['H'], evidence=evidence)
+    
+    print(f"\nTest Case {i}: {evidence}")
+    for index, prob in enumerate(result.values):
+        print(f"  Congestion Level: {congestion_mapping[index]}, Probability: {prob:.2%}")
