@@ -1,21 +1,3 @@
-'''
-Deliverables:
-•	Bayesian network structure and implementation.
-•	Inference results for different scenarios.
-•	Analysis and discussion of the model’s accuracy and limitations.
-
-Road Surface Conditions (RC): Dry, wet
-Weather (W): Sunny, Rainy, Foggy
-Time of Day (T): Morning, Afternoon, Evening
-Day of the Week (D): Weekday, Weekend
-Road Accidents (RA): None, Minor, Major
-Historical Congestion Level (H): Low, Medium, High
-
-W influences RC (because if rainy weather then road surface conditions are wet)
-W and RC influences RA (because if theres rainy weather and wet road surface confitions, then road accidents are more likely to happen)
-W, RA, T, D influences H (because if theres rainy weather, road accidents, morning time, weekday, then historical congestion level is more likely to be high)
-'''
-
 #import necessary library for Bayesian Networks
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
@@ -203,36 +185,53 @@ def simulated_annealing(routes, distance_matrix, max_iterations=1000, initial_te
         total_time = 0
         for route in routes:
             for i in range(len(route) - 1):
-                total_time += distance_matrix[route[i]][route[i + 1]]
+                total_time += distance_matrix[route[i]][route[i + 1]] #add time between consecutive locations
         return total_time
     
+    #initialize the current solution (routes) and the best solution found so far
     current_routes = routes.copy()
     best_routes = routes.copy()
+
+    #calculate the total travel time (cost) of the initial routes
     current_cost = total_travel_time(current_routes)
     best_cost = current_cost
+
+    #set initial temperature for simulated annealing
     temperature = initial_temp
     
+    #main loop: iterate for a maximum of max_iterations times
     for iteration in range(max_iterations):
+        #make a copy of the current routes to explore a new solution
         new_routes = [route.copy() for route in current_routes]
+        #select a random route to modify
         route_idx = random.randint(0, len(new_routes) - 1)
+        #swap two locations within the selected route if it has at least two locations
         if len(new_routes[route_idx]) > 2:
             i, j = random.sample(range(len(new_routes[route_idx])), 2)
             new_routes[route_idx][i], new_routes[route_idx][j] = new_routes[route_idx][j], new_routes[route_idx][i]
         
+        #calculate the total travel time of the modified routes
         new_cost = total_travel_time(new_routes)
+        #determine the difference between the new solution's cost and the current solution's cost
         cost_difference = new_cost - current_cost
         
+        #if the new solution is better (lower cost), accept it
+        #otherwise, accept it with a probability that decreases as temperature drops
         if cost_difference < 0 or random.uniform(0, 1) < math.exp(-cost_difference / temperature):
             current_routes = new_routes
             current_cost = new_cost
+            #update the best solution found so far if the new solution is better
             if new_cost < best_cost:
                 best_routes = new_routes
                 best_cost = new_cost
         
+        #reduce the temperature by the cooling rate to gradually decrease exploration
         temperature *= cooling_rate
     
+    #return the best routes and their corresponding total travel time
     return best_routes, best_cost
 
+#distance matrix representing travel time between locations (symmetric matrix)
 distance_matrix = np.array([
     [0, 10, 15, 20],
     [10, 0, 35, 25],
@@ -240,15 +239,26 @@ distance_matrix = np.array([
     [20, 25, 30, 0]
 ])
 
-initial_routes = [[0, 1, 2, 3], [3, 2, 1, 0]]
+#define initial vehicle routes (list of lists, each representing a sequence of stops)
+#-vehicle 1 follows the route [0 → 1 → 2 → 3]
+#-vehicle 2 follows the route [3 → 2 → 1 → 0]
+#each vehicle's route is represented as a list of locations (or stops).
+#goal is to optimize these routes to minimize total travel time, adjusting the order of stops if needed.
+initial_routes = [[0, 1, 2, 3], 
+                  [3, 2, 1, 0],
+                  [0, 2, 1, 3]]
 
+#calculate the initial total travel time for the routes
 initial_time = sum(
     sum(distance_matrix[route[i]][route[i + 1]] for i in range(len(route) - 1))
     for route in initial_routes
 )
 
+#run the Simulated Annealing optimization algorithm to find better routes
 optimized_routes, optimized_time = simulated_annealing(initial_routes, distance_matrix)
 
+
+#print the results before and after optimization
 print("\nBefore Optimization:")
 print("Initial Routes:", initial_routes)
 print("Total Travel Time Before Optimization:", initial_time)
@@ -256,3 +266,4 @@ print("Total Travel Time Before Optimization:", initial_time)
 print("\nAfter Optimization:")
 print("Optimized Routes:", optimized_routes)
 print("Total Travel Time After Optimization:", optimized_time)
+
