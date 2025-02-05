@@ -10,13 +10,14 @@ This project is part of the **Artificial Intelligence Concepts & Techniques (AIC
 ✅ **Traffic Prediction with Bayesian Networks**  
 
 
-## 🔹 Project Details
+## 🔹 Project Details  
 **📌 Assignment Name:** AICT Assignment 2024/25  
 **📌 Real-World Problem:** Intelligent Transportation System  
-**📌 Frameworks & Libraries:** Python, `networkx`, `pgmpy`, `matplotlib`, `pandas`, `itertools`, `csv`, `datetime`
+**📌 Frameworks & Libraries:** Python `networkx`, `pgmpy`, `matplotlib`, `pandas`, `itertools`, `csv`, `datetime`  
 **📌 Team Size:** 3 members  
 
-Our system models a **city map as a graph**, where:
+
+Our system models a **city map as a graph** where:  
 ✅ **Nodes** = Intersections (locations)  
 ✅ **Edges** = Roads (weighted by time, congestion, or distance)  
 
@@ -25,9 +26,9 @@ Our system models a **city map as a graph**, where:
 
 | Name         | Task & Contribution                         | Student ID  |
 |-------------|--------------------------------------------|-------------|
+| 🧑‍💻 ZhiHeng | Route Planning With Search Algorithms (Requirement 2.1) | S10241579H |
 | 🧑‍💻  Cheryl | Logical Inference for Traffic Rules (Requirement 2.2) | S10258146H |
 | 🧑‍💻  Hendrik | Traffic Prediction With Bayesian Network (Requirement 2.3)| S10241624J |
-| 🧑‍💻 ZhiHeng | Route Planning With Search Algorithms (Requirement 2.1) | S10241579H |
 
 
 ## 📌 **1️⃣ Route Planning with Search Algorithms**
@@ -57,7 +58,8 @@ graph = {
 This program takes has traffic rules built into it, taking in a file "vehicle_data.csv". From there it uses propositional logic and resolution-based inference to deduce violations and inconsistencies in the data. using logic.py in the process.
 
 ## 📌 **3️⃣ Traffic Prediction with Bayesian Networks**
-
+This program models a city's traffic network using a Bayesian Network to predict congestion levels based on factors like weather, road conditions, accidents, time of day, and day of the week.
+Additionally, it implements Simulated Annealing to optimize vehicle routes, minimizing total travel time while considering road congestion.
 
 ## ✅ How to Run the Code  
 ### Requirement 1 - Route Planning  
@@ -74,7 +76,9 @@ python requirement2.py
 ```
 
 ### Requirement 3 - Traffic Prediction with Bayesian Networks  
-
+```python
+python requirement_3.py
+```
 
 ### Advanced done by Cheryl
 ```python
