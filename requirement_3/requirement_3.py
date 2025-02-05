@@ -170,6 +170,11 @@ for i, evidence in enumerate(test_cases, 1):
         print(f"  Congestion Level: {congestion_mapping[index]}, Probability: {prob:.2%}")
 
 
+
+
+#====================================================================================
+# Advanced Simulated Annealing
+#====================================================================================
 def simulated_annealing(routes, distance_matrix, max_iterations=1000, initial_temp=100, cooling_rate=0.99):
     """
     Optimizes vehicle routes using Simulated Annealing to minimize total travel time.
