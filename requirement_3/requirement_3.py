@@ -47,12 +47,9 @@ cpd_RC = TabularCPD(variable='RC', variable_card=2,
 
 #define the CPD for road accident (RA) given weather (W) and road condition (RC)
 cpd_RA = TabularCPD(variable='RA', variable_card=2,
-                     values=[[0.98, 0.8, 0.7, 0.3, 0.6, 0.4],   #P(RA=No Accident | W=Sunny, RC=Good), P(RA=No Accident | W=Sunny, RC=Bad), 
-                                                                #P(RA=No Accident | W=Rainy, RC=Good), P(RA=No Accident | W=Rainy, RC=Bad),
-                                                                #P(RA=No Accident | W=Foggy, RC=Good), P(RA=No Accident | W=Foggy, RC=Bad)
-                             [0.02, 0.2, 0.3, 0.7, 0.4, 0.6]],  # P(RA=Accident | W=Sunny, RC=Good), P(RA=Accident | W=Sunny, RC=Bad),
-                                                                #P(RA=Accident | W=Rainy, RC=Good), P(RA=Accident | W=Rainy, RC=Bad),
-                                                                #P(RA=Accident | W=Foggy, RC=Good), P(RA=Accident | W=Foggy, RC=Bad)
+                     values=[[0.98, 0.8, 0.7, 0.3, 0.6, 0.4],   #P(RA=No Accident | W=Sunny, RC=Good), P(RA=No Accident | W=Sunny, RC=Bad), #P(RA=No Accident | W=Rainy, RC=Good), P(RA=No Accident | W=Rainy, RC=Bad),
+ #P(RA=No Accident | W=Foggy, RC=Good), P(RA=No Accident | W=Foggy, RC=Bad)
+                             [0.02, 0.2, 0.3, 0.7, 0.4, 0.6]],  # P(RA=Accident | W=Sunny, RC=Good), P(RA=Accident | W=Sunny, RC=Bad), #P(RA=Accident | W=Rainy, RC=Good), P(RA=Accident | W=Rainy, RC=Bad), #P(RA=Accident | W=Foggy, RC=Good), P(RA=Accident | W=Foggy, RC=Bad)
                      evidence=['W', 'RC'], evidence_card=[3, 2],
                      state_names={'RA': ['No Accident', 'Accident'],
                                   'W': ['Sunny', 'Rainy', 'Foggy'],
