@@ -2,6 +2,8 @@
 from pgmpy.models import BayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
+import networkx as nx
+import matplotlib.pyplot as plt
 import numpy as np
 import random
 import math
@@ -16,6 +18,20 @@ model = BayesianNetwork([
     ('T', 'H'),   #time of day (T) influences traffic congestion (H)
     ('D', 'H')    #day of the week (D) affects traffic congestion (H)
 ])
+
+
+# Create a NetworkX graph from the Bayesian Network
+graph = nx.DiGraph()
+graph.add_edges_from(model.edges())
+
+# Draw the graph
+plt.figure(figsize=(8, 6))
+pos = nx.spring_layout(graph)  # Layout for better positioning
+nx.draw(graph, pos, with_labels=True, node_color='lightblue', node_size=3000, edge_color='gray', font_size=12, font_weight='bold', arrows=True)
+
+# Show the diagram
+plt.title("Bayesian Network Structure", fontsize=14)
+plt.show()
 
 #define the conditional probability distribution (CPD) for weather (W)
 cpd_W = TabularCPD(variable='W', variable_card=3,
