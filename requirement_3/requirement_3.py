@@ -229,6 +229,7 @@ def simulated_annealing(routes, distance_matrix, max_iterations=1000, initial_te
         #swap two locations within the selected route if it has at least two locations
         if len(new_routes[route_idx]) > 2:
             i, j = random.sample(range(len(new_routes[route_idx])), 2)
+            #swapping route position
             new_routes[route_idx][i], new_routes[route_idx][j] = new_routes[route_idx][j], new_routes[route_idx][i]
         
         #calculate the total travel time of the modified routes
@@ -254,10 +255,11 @@ def simulated_annealing(routes, distance_matrix, max_iterations=1000, initial_te
 
 #distance matrix representing travel time between locations (symmetric matrix)
 distance_matrix = np.array([
-    [0, 10, 15, 20],
+    [0, 10, 15, 20], #row then column so to travel from location 3 to location 1 the way to read this is 
+    #row 3 index 1 in this case
     [10, 0, 35, 25],
     [15, 35, 0, 30],
-    [20, 25, 30, 0]
+    [20, 25, 30, 0] #row 3, index 1 is 25 
 ])
 
 #define initial vehicle routes (list of lists, each representing a sequence of stops)
@@ -271,7 +273,7 @@ initial_routes = [[0, 1, 2, 3],
 
 #calculate the initial total travel time for the routes
 initial_time = sum(
-    sum(distance_matrix[route[i]][route[i + 1]] for i in range(len(route) - 1))
+        sum(distance_matrix[route[i]][route[i + 1]] for i in range(len(route) - 1))
     for route in initial_routes
 )
 
